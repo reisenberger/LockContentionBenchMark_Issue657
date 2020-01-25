@@ -1,0 +1,8 @@
+# Benchmark notes
++ The overall durations in the benchmark are not of interest: most of the benchmark time goes in orchestrating the parallelism. Differences in duration between different modes are the salient point.
++ `NoWork` benchmark = baseline: how much benchmark time goes in orchestrating the parallelism.
++ `NoExtraLock` benchmark tells us how `ConcurrentDictionary<,>.GetOrAdd()` itself performs under load/contention, with no extra locking  around it (neither single-lock or keyed-lock). 
++ `ExtraLock` mode with `LockPerKey = true [or] false` compares keyed-lock against single-lock.  The keyed-lock strategy is a "perfect" keyed-lock with no collisions. The work benchmarked otherwise stays close to the prototype `DuplicateCollapserPolicy`.
++ A switch `DifferentKeys = true [or] false` was to highlight any difference between many threads/tasks contending the same key, versus contending different keys (GetOrAdd will do more Adding and less Getting with DifferentKeys = true)
++ Commented-out code re `ActualContentionEncountered` was used to confirm the benchmarks really generate lock contention, not just that we believe they will. Analysing outputs, for a given `ParallelTasks`, around 50% (varying 45-55 with scale) of the tasks experienced lock contention.
++ A commented-out benchmark `PureConcurrentDictionaryGetOrAdd()` models how long `.GetOrAdd()` might take with _no_ contention.
